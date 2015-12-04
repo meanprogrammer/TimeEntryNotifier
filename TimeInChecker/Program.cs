@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WatiN.Core;
+using WatiN.Core.Native.Windows;
 
 namespace TimeInChecker
 {
@@ -14,6 +16,7 @@ namespace TimeInChecker
         {
             using (var browser = new IE("http://timerec/ATRS.aspx", true)) 
             {
+                browser.ShowWindow(NativeMethods.WindowShowStyle.Hide);
                 var page = browser.Page<ARTSPage>();
                 page.Textbox2.TypeText("12/4/2015");
                 browser.WaitForComplete();
@@ -24,6 +27,8 @@ namespace TimeInChecker
 
                 Table t = page.GridView;
                 TableRowCollection cls = t.TableRows;
+
+                List<TimeEntryItem> timeEntries = new List<TimeEntryItem>();
 
                 for (int i = 1; i < cls.Count; i++)
                 {
@@ -36,13 +41,19 @@ namespace TimeInChecker
                     var userid = tds[4].Text;
 
                     TimeEntryItem te = new TimeEntryItem() { 
-                        Date = DateTime.Parse(date),
+                        Date = DateTime.ParseExact(date, "MM-dd-yyyy", CultureInfo.InvariantCulture),
                         Time = DateTime.Parse(time),
                         EntryType = type,
                         ScanDevice = sd,
                         UserID = Convert.ToInt32(userid)
                     };
+
+                    timeEntries.Add(te);
                 }
+
+                var x = timeEntries;
+
+                
             }
         }
     }
